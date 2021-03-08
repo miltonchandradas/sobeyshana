@@ -1,0 +1,26 @@
+specVersion: '1.0'
+metadata:
+  name: 'sobeyshana'
+type: application
+ui5Theme: sap_fiori_3
+server:
+  customMiddleware:
+  - name: fiori-tools-proxy
+    afterMiddleware: compression
+    configuration:
+      ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+      backend:
+      - path: /v2
+        destination: sobeys_api
+        url: https://sobeysapi-srv-timely-oryx-or.cfapps.us10.hana.ondemand.com
+      ui5:
+        path: 
+        - /resources
+        - /test-resources
+        url: https://sapui5.hana.ondemand.com
+        version:  # The UI5 version, for instance, 1.78.1. Empty means latest version
+  - name: fiori-tools-appreload
+    afterMiddleware: compression
+    configuration:
+     port: 35729
+     path: webapp

@@ -1,0 +1,84 @@
+_schema-version: "3.2"
+ID: com-saphana-sobeys
+description: A Fiori application.
+version: 0.0.1
+modules:
+- name: com-saphana-sobeys-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: com-saphana-sobeys-html5-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - comsaphanasobeys.zip
+      name: comsaphanasobeys
+      target-path: resources/
+- name: comsaphanasobeys
+  type: html5
+  path: .
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: com-saphana-sobeys-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: com-saphana-sobeys-destination-service
+    parameters:
+      content-target: true
+  - name: com-saphana-sobeys-html5-repo-host
+    parameters:
+      service-key:
+        name: com-saphana-sobeys-html5-repo-host-key
+  - name: uaa_com-saphana-sobeys
+    parameters:
+      service-key:
+        name: uaa_com-saphana-sobeys-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: fnrhana_com_saphana_sobeys_html5_repo_host
+          ServiceInstanceName: com-saphana-sobeys-html5-repo-host
+          ServiceKeyName: com-saphana-sobeys-html5-repo-host-key
+          sap.cloud.service: fnrhana
+        - Authentication: OAuth2UserTokenExchange
+          Name: fnrhana_uaa_com_saphana_sobeys
+          ServiceInstanceName: com-saphana-sobeys-xsuaa-service
+          ServiceKeyName: uaa_com-saphana-sobeys-key
+          sap.cloud.service: fnrhana
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+resources:
+- name: com-saphana-sobeys-html5-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
+- name: com-saphana-sobeys-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      version: 1.0.0
+    service: destination
+    service-name: com-saphana-sobeys-destination-service
+    service-plan: lite
+- name: uaa_com-saphana-sobeys
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: com-saphana-sobeys-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
